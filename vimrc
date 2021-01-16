@@ -1,12 +1,13 @@
 syntax on
-
+set termguicolors
 set guicursor=
 set encoding=UTF-8
 set relativenumber
 " set nohlsearch
 set hidden
 set noerrorbells
-set tabstop=4 softtabstop=4
+set tabstop=2 softtabstop=4
+set nowrap
 set shiftwidth=4
 set expandtab
 set smartindent
@@ -36,14 +37,19 @@ set rtp+=~/.vim/bundle/nerdtree
 function Template(tmpl_file)
     exe "0read " . a:tmpl_file
     let substDict = {}
+    let substDict["date"] = strftime("%d %b %Y %X")
+    exe '%s/<<\([^>]*\)>>/\=substDict[submatch(1)]/g'
+    set nomodified
     normal G
 endfunction
 
 autocmd BufNewFile *.c,*.cc,*.cpp,*.h call Template("~/.vim/tmpl.cpp")
 
 call plug#begin('~/.vim/plugged')
+Plug 'rakr/vim-one'
+Plug 'bluz71/vim-nightfly-guicolors'
 Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+" Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-fugitive'
 Plug 'scrooloose/nerdtree'
 Plug 'vim-scripts/Tabtastic'
@@ -67,14 +73,43 @@ Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'Jintumoni/DSA'
 Plug 'Valloric/YouCompleteMe'
 Plug 'matze/vim-move'
+Plug 'kien/ctrlp.vim'
+Plug 'arcticicestudio/nord-vim'
+Plug 'altercation/vim-colors-solarized'
 call plug#end()
-let g:gruvbox_contrast_dark = 'medium'
-let g:autosave_timer      = 5000
+autocmd TextChanged, TextChangedI <buffer> silent write
+"atom one theme"
+" colorscheme one 
+" set background=dark"
+"
+"nightfly theme" 
+"let g:nightflyCursorColor = 1
+" let g:nightflyUnderlineMatchParen = 1
+" let g:nightfly_contrast_dark = 'medium'
+"
+" gruvbox theme
+ " let g:gruvbox_contrast_dark = 'hard'
+ " " let g:autosave_timer      = 5000
+ " colorscheme gruvbox
+ " " colorscheme nightfly
+ " set background=dark
+"
+" solarised theme
+" set background=light
+" colorscheme solarized
+
+colorscheme gruvbox 
 if exists('+termguicolors')
     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 endif
-let g:gruvbox_invert_selection='0'
+
+" let CtrlP use ripgrep as the search engine
+if executable('rg')
+  let g:ctrlp_user_command = 'rg %s --files --hidden --color=never --glob ""'
+endif
+
+" let g:gruvbox_invert_selection='0'
 let g:go_highlight_build_constraints = 1
 let g:go_highlight_extra_types = 1
 let g:go_highlight_fields = 1
@@ -89,18 +124,17 @@ let g:go_highlight_generate_tags = 1
 let g:go_highlight_format_strings = 1
 let g:go_highlight_variable_declarations = 1
 let g:go_auto_sameids = 1
-let g:airline_theme='dark'
+" let g:airline_theme='wombat'
 let g:move_key_modifier = 'S'
-
 let g:vim_be_good_log_file = 1
+let g:airline#extensions#tabline#enabled = 1
 
-colorscheme gruvbox
-set background=dark
+
 if executable('rg')
     let g:rg_derive_root='true'
 endif
 
-let loaded_matchparen = 1
+" let loaded_matchparen = 1
 let mapleader = " "
 
 let g:netrw_browse_split = 2
@@ -214,8 +248,17 @@ let g:NERDTreeWinSize =20
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite
 " nnoremap <silent> <F2> :NERDTreeFind<CR>
 nnoremap <silent> <F3> :NERDTreeToggle<CR>
-map <F8> :w <CR> :!clear ; g++  -std=c++17 -Wall -Wextra -Wshadow -fsanitize=address -fsanitize=undefined -Wshift-overflow -D_GLIBCXX_DEBUG  -fno-omit-frame-pointer %; if [ -f a.out ]; then time ./a.out; rm a.out; fi <CR>
+" map <F8> :w <CR> :!clear ; mk %:r &&  rn %:r <CR>
+map <F8> :w <CR> :!clear ; mk.sh %:r &&  rn.sh %:r <CR>
 :imap jj <Esc>
 nnoremap <C-c> :!g++ -o  %:r % -std=c++17 -Wall -Wextra -Wshadow -fsanitize=address -fsanitize=undefined -Wshift-overflow -D_GLIBCXX_DEBUG  -fno-omit-frame-pointer<Enter>
 nnoremap <C-x> :!./%:r <Enter>
 " nmap <leader>alg AlgDS<CR>
+:vnoremap <Leader>c "*y 
+" autocmd vimenter * let &shell='/bin/zsh -i' 
+" auto-save fold views
+augroup AutoSaveFolds
+autocmd!
+autocmd BufWinLeave ?* mkview
+autocmd BufWinEnter ?* silent loadview
+augroup END

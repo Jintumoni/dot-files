@@ -1,4 +1,5 @@
 # If you come from bash you might have to change your $PATH.
+export PATH=\"/usr/local/bin:$PATH\"
 PROMPT='%F{203}Jin2%f in %F{220}%~%f -> '
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 #DEFAULT_USER="jintu"
@@ -7,11 +8,18 @@ export ZSH="/Users/upen/.oh-my-zsh"
 export PATH=$PATH:~/.local/bin/
 
 # to compile cpp code
-make(){
-    filename=$1
-    g++ -std=c++17 $filename.cpp -Wall -Wextra -Wshadow -fsanitize=address -fsanitize=undefined -Wshift-overflow -D_GLIBCXX_DEBUG  -fno-omit-frame-pointer -o  "${filename}"
-}
+# make(){
+#   filename=$1
+#   # without using precompiled headers
+#   # g++ -std=c++17 $filename.cpp -Wall -Wextra -Wshadow -fsanitize=address -fsanitize=undefined -Wshift-overflow -D_GLIBCXX_DEBUG  -fno-omit-frame-pointer -o  "${filename}"
+#   # using precompiled headers
+#   g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=address -fsanitize=undefined -Wshift-overflow -D_GLIBCXX_DEBUG  -fno-omit-frame-pointer -stdlib=libc++ -include stdc++.h  $filename.cpp -o  "${filename}"
+# }
 
+header() {
+  dir=$(pwd)
+  cp ~/Desktop/Codes/templates/stdc++.h.pch $dir
+}
 # to generate test cases for stress testing ..
 generate() {
   var="#include <algorithm>
@@ -51,22 +59,33 @@ pur=$'\x1b[95m' # Sets text to purple
 cyn=$'\x1b[96m' # Sets text to cyan
 wht=$'\x1b[97m' # Sets text to white
 rst=$'\x1b[0m'  # resets to default terminal color
+grey=$'\x1b[90m'
+bold=$'\x1b[1m'
 
 # colorize the input and output separately
 # red -- > input
 # green -- > output
-makra() {
-  arg=$1
-  $(touch ans)
-  echo -n ${red} 
-  ./$arg > ans
-  echo -n ${rst}
-  echo -n ${grn} 
-  cat ans
-  echo -n ${rst}
-  rm ans
-}
+# mk() {
+#   arg=$1
+#   $(touch ans)
+#   echo -n ${red} 
+#   ./$arg > ans
+#   echo -n ${rst}
+#   echo -n ${grn} 
+#   cat ans
+#   echo -n ${rst}
+#   rm ans
+# }
 
+go() {
+  dir=${1:-""};
+  if [ -z "$dir" ]
+  then 
+    cd ~/desktop/codes/competitive
+  else
+    cd ~/desktop/codes/competitive/contest/$dir
+  fi
+}
 
 #alias gcc x='g++ -std=c++17 -Wall -Wextra -Wshadow -fsanitize=address -fsanitize=undefined -Wshift-overflow -D_GLIBCXX_DEBUG  -fno-omit-frame-pointer $x.cpp -o $x'
 # Set name of the theme to load --- if set to "random", it will
@@ -162,10 +181,23 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
+commands(){
+  echo
+  echo -e "${grn}$ ""${bold}run problem ${grey}<name of the problem(s)>${rst}  -> ${wht}parses the problem from the OJ ${rst}"
+  echo -e "${grn}$ ""${bold}run contest ${grey}<number of problems>${rst}      -> ${wht}parses the defined number of problems from the OJ${rst}"
+  echo -e "${grn}$ ""${bold}run test    ${grey}<no arguments>${rst}            -> ${wht}test your code against the sample test cases parsed from the OJ${rst}"
+  echo -e "${grn}$ ""${bold}mk          ${grey}<filename>${rst}                -> ${wht}compiles the C++ code with the predefined flags${rst}"
+  echo -e "${grn}$ ""${bold}rn          ${grey}<filename>${rst}                -> ${wht}different input and out colors${rst}"
+  echo -e "${grn}$ ""${bold}generate    ${grey}<no arguments>${rst}            -> ${wht}generates a gen file to run stress test${rst}"
+  echo -e "${grn}$ ""${bold}stress      ${grey}<filename>${rst}                -> ${wht}runs stress test comparing <filename>.cpp to brute.cpp${rst}"
+  echo -e "${grn}$ ""${bold}header      ${grey}<no arguments>${rst}            -> ${wht}copy precompiled headers into current directory${rst}"
+  echo
+}
 export PATH="$PATH:/Users/upen/flutter/flutter/bin"
 
 alias python=/usr/local/bin/python3.7
 alias python=/usr/local/bin/python3.6
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+bindkey jj vi-cmd-mode 
+module_init
